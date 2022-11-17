@@ -9,13 +9,13 @@ def convert_dict_json(
 
 
 if __name__ == "__main__":
-    certificate_path = f"./src/keys/69178f6cf1c7bfaee3617f664441aff28371606260d4e6313097b8f293ea2c50-certificate.pem.crt"
-    private_key_path = f"./src/keys/69178f6cf1c7bfaee3617f664441aff28371606260d4e6313097b8f293ea2c50-private.pem.key"
-    public_key_path = f"./src/keys/69178f6cf1c7bfaee3617f664441aff28371606260d4e6313097b8f293ea2c50-public.pem.key"
+    certificate_path = f"./testing_aws_comms/src/keys/69178f6cf1c7bfaee3617f664441aff28371606260d4e6313097b8f293ea2c50-certificate.pem.crt"
+    private_key_path = f"./testing_aws_comms/src/keys/69178f6cf1c7bfaee3617f664441aff28371606260d4e6313097b8f293ea2c50-private.pem.key"
+    public_key_path = f"./testing_aws_comms/src/keys/69178f6cf1c7bfaee3617f664441aff28371606260d4e6313097b8f293ea2c50-public.pem.key"
     end_point = f"a1tmhchnoirllr-ats.iot.us-east-1.amazonaws.com"
 
     parser = argparse.ArgumentParser(description='Test shadow API')
-    topic = "/test/insert_into_table"
+    topic = "weather/post_data"
 
     parser.add_argument(
         '--endpoint', 
@@ -50,8 +50,7 @@ if __name__ == "__main__":
     print(publish_url)
 
     message={
-        "device_id":"weather_1",
-        "timestamp":2,
+        "device_id":"weather_station_1",
         "state":{
             "reported":{
                 "humidity":0.29,
@@ -60,19 +59,21 @@ if __name__ == "__main__":
         }
     }
 
-    message = convert_dict_json(
-        dictionary=message
-    )
-
-    #publish_msg = message.encode('utf-8') 
-    publish = requests.request(
-            'POST',
-            publish_url,
-            data=message,
-            cert=[args.cert, args.key]
+    for i in range(5):
+        json_message = convert_dict_json(
+            dictionary=message
         )
-    print("Response status: ", str(publish.status_code))
-    if publish.status_code == 200:
-        print("Response body:", publish.text)
-    else:
-        print("Response body:", publish.text)
+        publish = requests.request(
+                'POST',
+                publish_url,
+                data=json_message,
+                cert=[args.cert, args.key]
+            )
+        message['state']["reported"]['humidity'] += 0.23
+        message['state']["reported"]['temp'] += 2
+
+        print("Response status: ", str(publish.status_code))
+        if publish.status_code == 200:
+            print("Response body:", publish.text)
+        else:
+            print("Response body:", publish.text)

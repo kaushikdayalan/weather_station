@@ -127,7 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-/include
-/Scripts
-/pyvenv.cfg
-/src/keys
+testing_aws_comms/include
+testing_aws_comms/Scripts
+testing_aws_comms/pyvenv.cfg
+testing_aws_comms/src/keys
+/backend/node_modules
+/backend/package-lock.json

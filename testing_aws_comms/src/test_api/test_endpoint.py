@@ -1,17 +1,18 @@
 import requests
 import argparse
 import json
+import random
+import os
 
 def convert_dict_json(
         dictionary: dict  
     ):
     return json.dumps(dictionary)
 
-
 if __name__ == "__main__":
-    certificate_path = f"./testing_aws_comms/src/keys/69178f6cf1c7bfaee3617f664441aff28371606260d4e6313097b8f293ea2c50-certificate.pem.crt"
-    private_key_path = f"./testing_aws_comms/src/keys/69178f6cf1c7bfaee3617f664441aff28371606260d4e6313097b8f293ea2c50-private.pem.key"
-    public_key_path = f"./testing_aws_comms/src/keys/69178f6cf1c7bfaee3617f664441aff28371606260d4e6313097b8f293ea2c50-public.pem.key"
+    certificate_path = f"./src/keys/69178f6cf1c7bfaee3617f664441aff28371606260d4e6313097b8f293ea2c50-certificate.pem.crt"
+    private_key_path = f"./src/keys/69178f6cf1c7bfaee3617f664441aff28371606260d4e6313097b8f293ea2c50-private.pem.key"
+    public_key_path = f"./src/keys/69178f6cf1c7bfaee3617f664441aff28371606260d4e6313097b8f293ea2c50-public.pem.key"
     end_point = f"a1tmhchnoirllr-ats.iot.us-east-1.amazonaws.com"
 
     parser = argparse.ArgumentParser(description='Test shadow API')
@@ -59,7 +60,7 @@ if __name__ == "__main__":
         }
     }
 
-    for i in range(5):
+    for i in range(20):
         json_message = convert_dict_json(
             dictionary=message
         )
@@ -69,8 +70,8 @@ if __name__ == "__main__":
                 data=json_message,
                 cert=[args.cert, args.key]
             )
-        message['state']["reported"]['humidity'] += 0.23
-        message['state']["reported"]['temp'] += 2
+        message['state']["reported"]['humidity'] = random.uniform(0.6, 0.9)
+        message['state']["reported"]['temp'] = random.uniform(16.5, 24.9)
 
         print("Response status: ", str(publish.status_code))
         if publish.status_code == 200:

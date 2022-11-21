@@ -133,3 +133,6 @@ testing_aws_comms/pyvenv.cfg
 testing_aws_comms/src/keys
 /backend/node_modules
 /backend/package-lock.json
+/frontend/node_modules
+/frontend/package-lock.json
+/frontend/.next

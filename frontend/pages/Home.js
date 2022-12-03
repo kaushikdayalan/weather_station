@@ -51,6 +51,7 @@ export default function Home()
     const [temp, setTemp] = React.useState([]);
     const [Humidity, setHumidity] = React.useState([]);
     const [label, setLabel] = React.useState([]);
+    const [weatherCondition, setWeatherCondition] = React.useState("");
 
     const fetchPost = () => {
         console.log("doing fetch")
@@ -65,7 +66,7 @@ export default function Home()
     const fetchTemp = () =>{
         let temp = []
         for(let i =0; i < weather.length; i++){
-            temp.push(parseFloat(weather[i].data.state.reported.temp))
+            temp.push(parseFloat(weather[i].data.state.reported.temperature))
         }
         setTemp(temp);
     } 
@@ -81,23 +82,51 @@ export default function Home()
     const fetchTime = () =>{
         let time = []
         for(let i =0; i < weather.length; i++){
-            time.push(weather[i].timestamp)
+            time.push(weather[i].data.time)
         }
+        console.log(time);
         return setLabel(time);
     } 
 
+    const fetchRainData = () =>{
+      let rain = "";  
+      rain = weather[weather.length -1].data.rain;
+
+      if(rain == ""){
+        setWeatherCondition("sunny");
+      }
+      if (rain == "yes"){
+        setWeatherCondition("rainy"); 
+      }
+      else if(temp[temp.length- 1] > 17 && temp[temp.length- 1] < 24){
+        setWeatherCondition("sunny");
+      }
+      else if(temp[temp.length- 1] < 2){
+        setWeatherCondition("snowy");
+      }
+    }
+
     React.useEffect(()=>{
-        const timer = setInterval(() => { // Creates an interval which will update the current data every minute
-            // This will trigger a rerender every component that uses the useDate hook.
+        const timer = setInterval(() => {          
             fetchPost();
             fetchTime();
             fetchTemp();
             fetchHumidity();
+            fetchRainData();
           }, 12 * 1000);
           return () => {
             clearInterval(timer);
         }
     }, [weather]);
+
+    React.useEffect(()=>{
+      const timer = setInterval(() => {          
+        fetchRainData();
+      }, 12 * 1000);
+      return () => {
+        clearInterval(timer);
+    }
+},[weather]);
 
     React.useEffect(() => {
         const timer = setInterval(() => { // Creates an interval which will update the current data every minute
@@ -142,7 +171,7 @@ export default function Home()
         labels,
         datasets: [
           {
-            label: 'Dataset 1',
+            label: 'Temperature',
             data: temp,
             borderColor: 'rgb(255, 99, 132)',
             backgroundColor: 'rgba(255, 99, 132, 0.5)',
@@ -154,7 +183,7 @@ export default function Home()
         labels,
         datasets: [
           {
-            label: 'Dataset 1',
+            label: 'Humidity',
             data: Humidity,
             borderColor: 'rgb(255, 99, 132)',
             backgroundColor: 'rgba(255, 99, 132, 0.5)',
@@ -180,7 +209,7 @@ export default function Home()
             </Item>
         </Grid>
         <Grid item xs={1}>
-          <WeatherDisplay width={200} height={50} currentTemperature={parseFloat(temp[temp.length- 1]).toFixed()} currentCondition = 'snowy' />
+          <WeatherDisplay width={200} height={50} currentTemperature={parseFloat(temp[temp.length- 1]).toFixed()} currentCondition={weatherCondition} />
         </Grid>
         <Grid item xs={1}>
             <Item>Minimum: {Math.min(...temp).toFixed()}°</Item>
@@ -193,9 +222,6 @@ export default function Home()
         </Grid>
         <Grid item xs={6}>
             <Item><Line options={options} data={humidityData}></Line></Item>
-        </Grid>
-        <Grid item xs={6}>
-            <Item>CO2 graph</Item>
         </Grid>
       </Grid>
     </Box>
